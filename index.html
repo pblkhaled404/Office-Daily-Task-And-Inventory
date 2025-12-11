@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pubali Offline Inventory System</title>
+    
+    <style>
+        :root {
+            --primary: #006a4e;       /* Pubali Green */
+            --accent: #f39c12;        /* Pubali/Gold Yellow */
+            --light-bg: #f4fdf9;
+            --border: #c8d6d1;
+            --text: #2d3436;
+            --overdue-bg: #ffe0e0;
+			--success-bg: #006a4e;
+            --done-text: #27ae60;
+        }
+
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; background: var(--light-bg); display: flex; flex-direction: column; height: 100vh; color: var(--text); }
+
+        /* --- ORIGINAL HEADER DESIGN --- */
+        header {
+            background: white; border-bottom: 3px solid var(--primary); padding: 10px 20px;
+            display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .brand { display: flex; align-items: center; gap: 15px; }
+        .brand img { height: 50px; } 
+        .brand h1 { margin: 0; font-size: 20px; color: var(--primary); text-transform: uppercase; }
+        .brand small { color: #666; display: block; font-size: 12px; }
+
+        /* --- LAYOUT --- */
+        .container { flex: 1; display: flex; overflow: hidden; }
+        
+        /* SIDEBAR */
+        aside { width: 260px; background: #004d38; color: white; display: flex; flex-direction: column; border-right: 1px solid #003829; }
+        .sb-header { padding: 15px; background: rgba(0,0,0,0.2); text-align: center; }
+        .sb-header h3 { margin: 0; font-size: 16px; color: var(--accent); }
+        .table-list { list-style: none; padding: 0; margin: 0; overflow-y: auto; flex: 1; }
+        .table-list li { padding: 12px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); cursor: pointer; transition: 0.2s; display: flex; justify-content: space-between; }
+        .table-list li:hover { background: rgba(255,255,255,0.1); }
+        .table-list li.active { background: var(--light-bg); color: var(--primary); border-left: 5px solid var(--accent); font-weight: bold; }
+        
+        .add-table-btn { width: 90%; margin: 10px auto; padding: 8px; background: var(--accent); border: none; color: #000; font-weight: bold; cursor: pointer; border-radius: 4px; display: block; }
+
+        /* MAIN AREA */
+        main { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; }
+        .toolbar { display: flex; gap: 10px; margin-bottom: 15px; background: white; padding: 10px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .search-box { flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        
+        /* DATA TABLE */
+        .table-wrapper { flex: 1; overflow: auto; border: 1px solid var(--border); border-radius: 6px; background: white; }
+        table { width: 100%; border-collapse: collapse; }
+        th { 
+            background: var(--primary); color: white; padding: 12px; text-align: left; position: sticky; top: 0; z-index: 10; 
+            white-space: nowrap; cursor: pointer; /* Added cursor for sortable headers */
+        }
+        th:last-child { cursor: default; } /* Action column is not sortable */
+        td { padding: 8px 12px; border-bottom: 1px solid #eee; vertical-align: middle; }
+        tr:hover { background-color: #f1f8f6; }
+        .sort-indicator { margin-left: 5px; font-size: 0.8em; }
+
+        /* --- TRUNCATION & TOPIC STYLES --- */
+        .topic-truncate {
+            display: block;
+            max-width: 300px; /* Forces long text to cut off */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis; /* Adds the "..." */
+            cursor: pointer;
+            color: var(--primary);
+            font-weight: 500;
+        }
+        .topic-truncate:hover { text-decoration: underline; color: #003829; }
+
+        /* STATUS STYLES */
+        .Status-done { color: var(--done-text); font-weight: bold; }
+        .overdue-row { background-color: var(--overdue-bg) !important; color: #880000; }
+		.success-row { background-color: var(--success-bg) !important; color: #f4fdf9; }
+		.success-row td{ color: #f4fdf9; !important}
+        .reminder-link { color: #d35400; font-weight: bold; cursor: pointer; text-decoration: underline; }
+
+        /* BUTTONS */
+        .btn { padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-accent { background: var(--accent); color: #000; }
+        .btn-danger { background: #e74c3c; color: white; }
+        .btn-outline { background: transparent; border: 1px solid var(--primary); color: var(--primary); }
+
+        /* ACTION ICONS */
+        .action-icons { display: flex; gap: 10px; align-items: center; }
+        .icon-btn { border: none; background: none; cursor: pointer; font-size: 16px; padding: 2px; transition: transform 0.2s; }
+        .icon-btn:hover { transform: scale(1.2); }
+
+        /* --- ORIGINAL FOOTER DESIGN --- */
+        footer { background: var(--primary); color: white; text-align: center; padding: 5px 10px; font-size: 12px; border-top: 3px solid var(--accent); display: flex; justify-content: space-between; align-items: center; }
+        .footer-logo { height: 20px; vertical-align: middle; margin-right: 5px; filter: brightness(0) invert(1); }
+
+        /* --- MODALS --- */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(2px); }
+        .modal-box { background: white; width: 500px; max-width: 90%; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); overflow: hidden; display: flex; flex-direction: column; max-height: 85vh; }
+        .modal-header { background: var(--primary); color: white; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; }
+        .modal-body { padding: 20px; overflow-y: auto; }
+        .modal-footer { padding: 15px; background: #f9f9f9; text-align: right; border-top: 1px solid #eee; }
+
+  /* DETAIL VIEW TABLE */
+        .detail-table { width: 100%; border-collapse: collapse; }
+        .detail-table th { background: #eee; color: #333; padding: 10px; border: 1px solid #ddd; width: 30%; text-align: left; }
+        .detail-table td { padding: 10px; border: 1px solid #ddd; word-break: break-word; white-space: pre-wrap; }
+        /* INPUTS */
+        .input-group { margin-bottom: 12px; }
+        .input-group label { display: block; font-size: 12px; color: #666; margin-bottom: 4px; font-weight: bold; }
+        .input-group input, .input-group textarea { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        
+        .admin-only { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="brand">
+            <img src="banklogo.gif" alt="Pubali Bank Logo"> <div>
+                <h1>Daily Task And Inventory</h1>
+                <small>Offline Management System</small>
+            </div>
+        </div>
+        <div class="top-actions admin-only"> 
+            <button class="btn btn-outline" onclick="downloadJSFile()">⬇ Backup Data</button>
+            <button class="btn btn-danger" onclick="resetData()">↻ Reset</button>
+        </div>
+    </header>
+
+    <div class="container">
+        <aside>
+            <div class="sb-header">
+                <h3>TABLE LIST</h3>
+            </div>
+            <button class="add-table-btn admin-only" onclick="openAddTableModal()">+ New Table</button>
+            <ul class="table-list" id="tableList"></ul>
+        </aside>
+
+        <main>
+            <div id="welcomeScreen" style="text-align: center; margin-top: 50px; color: #aaa;">
+                <h2>Select a table to view details</h2>
+            </div>
+
+            <div id="tableContent" style="display: none; height: 100%; flex-direction: column;">
+                <div class="toolbar">
+                    <h3 id="activeTableName" style="margin: 0; margin-right: 15px; color: var(--primary);">Table Name</h3>
+                    <input type="text" id="searchInput" class="search-box" placeholder="Search data..." onkeyup="renderRows()">
+                    <button class="btn btn-primary admin-only" onclick="openRowModal('add')">+ Add Row</button>
+                    <button class="btn btn-danger admin-only" onclick="deleteCurrentTable()">Delete Table</button>
+                </div>
+
+                <div class="table-wrapper">
+                    <table id="dataTable">
+                        <thead><tr id="tableHeadRow"></tr></thead>
+                        <tbody id="tableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <footer>
+        <div onclick="askAdminPass()" style="cursor: pointer;" title="Double click to Login as Admin">
+            <img src="banklogo.gif" class="footer-logo" alt="Logo">
+            <span>Developed by Switching CMS & Risk Management Unit <br>Card Operation Division (COD)</span>
+        </div>
+        <div>
+            Status: <span id="StatusIndicator" style="color: #81ecec;">View Mode</span>
+        </div>
+    </footer>
+
+    <div class="modal-overlay" id="viewModal">
+        <div class="modal-box" style="width: 80%;">
+            <div class="modal-header">
+                <h3>Task Full Details</h3>
+                <button style="background:none; border:none; color:white; font-size:20px; cursor:pointer;" onclick="closeModal('viewModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <table class="detail-table">
+                    <tbody id="viewDetailsBody"></tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="closeModal('viewModal')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="mainModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3 id="modalTitle">Entry</h3>
+                <button style="background:none; border:none; color:white; font-size:20px; cursor:pointer;" onclick="closeModal('mainModal')">×</button>
+            </div>
+            <div class="modal-body" id="modalForm"></div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('mainModal')">Cancel</button>
+                <button class="btn btn-primary" id="modalSaveBtn">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="reminderModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3>Reminder History</h3>
+                <button style="background:none; border:none; color:white; font-size:20px; cursor:pointer;" onclick="closeModal('reminderModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="admin-only" style="background: #effbf5; padding: 15px; border-radius: 6px; border: 1px solid #c8d6d1; margin-bottom: 15px;">
+                    <div style="font-weight:bold; margin-bottom:5px; color:var(--primary);">Add New Reminder</div>
+                    <div class="input-group"><label>Date</label><input type="date" id="remDate"></div>
+                    <div class="input-group"><label>Contact With</label><input type="text" id="contactWith"></div>
+                    <div class="input-group"><label>Update Comment</label><textarea id="remComment" rows="2"></textarea></div>
+                    <button class="btn btn-accent" style="width:100%" onclick="addNewReminder()">+ Add Reminder</button>
+                </div>
+                <div id="reminderListContainer"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- CONFIGURATION: Which columns to show & truncate ---
+        const TABLE_CONFIG = {
+            "Pending Task SDD": {
+                // Show ONLY these in the main table
+                columns: ["SL No.", "Topics", "Last Reminder", "Status"], 
+                // Which column gets the "..." truncation?
+                truncate: "Topics"
+            },
+            "Pending Task Cynergon": {
+                columns: ["SL NO.", "TASK DETAILS", "LAST REMINDER", "STATUS"],
+                truncate: "TASK DETAILS"
+            }
+        };
+        
+        let DB = {};
+        let currentTable = null;
+        let editIndex = -1;
+        let reminderRowIndex = -1;
+        let activeReminderCol = "";
+        let isAdmin = localStorage.getItem('isPubaliAdmin') === 'true'; 
+		let sortColumn = 'Last Reminder'; // Default sort column
+        let sortDirection = 'desc'; // Default sort direction (Newest first is typical for task lists)
+        const today = new Date(); // Used for overdue check
+
+        // --- HELPER: GET LAST REMINDER DATE ---
+        function getLastReminderDate(row) {
+            const remColName = Object.keys(row).find(k => k.toLowerCase().includes('last reminder'));
+            if (remColName && Array.isArray(row[remColName]) && row[remColName].length > 0) {
+                // Get the date string of the last entry
+                const dateStr = row[remColName][row[remColName].length - 1].date;
+                // Convert to Date object for comparison. Returns null if invalid date.
+                const date = new Date(dateStr);
+                return isNaN(date.getTime()) ? null : date;
+            }
+            return null;
+        }
+
+        // --- INITIALIZATION ---
+        function init(){
+            const local = localStorage.getItem('pubali_db');
+            DB = local ? JSON.parse(local) : JSON.parse(JSON.stringify(STARTUP_DATA));
+            applyAdminUI();
+            renderSidebar();
+        }
+
+        function applyAdminUI(){
+            if(isAdmin){
+                document.querySelectorAll('.admin-only').forEach(el => el.style.setProperty('display', 'block', 'important'));
+                document.getElementById('StatusIndicator').innerText = "Admin Mode";
+            } else {
+                document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+                document.getElementById('StatusIndicator').innerText = "View Mode (Auto-Sync)";
+            }
+        }
+
+        // --- RENDER LOGIC ---
+        function renderSidebar(){
+            const list = document.getElementById('tableList');
+            list.innerHTML = '';
+            Object.keys(DB).forEach(key => {
+                const li = document.createElement('li');
+                li.innerHTML = `<span>${key}</span> <small>(${DB[key].length})</small>`;
+                if(key === currentTable) li.classList.add('active');
+                li.onclick = () => loadTable(key);
+                list.appendChild(li);
+            });
+        }
+
+        function loadTable(tableName){
+            currentTable = tableName;
+            document.getElementById('welcomeScreen').style.display = 'none';
+            document.getElementById('tableContent').style.display = 'flex';
+            document.getElementById('activeTableName').innerText = tableName;
+            document.getElementById('searchInput').value = '';
+			// Reset sort for new table
+            sortColumn = 'Last Reminder';
+            sortDirection = 'desc';
+            renderSidebar();
+            renderRows();
+        }
+        
+        // --- SORTING FUNCTION ---
+        function sortTable(column) {
+            if (sortColumn === column) {
+                sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortColumn = column;
+                sortDirection = 'asc';
+            }
+            renderRows();
+        }
+
+        function renderRows(){
+            const rows = DB[currentTable];
+            const thead = document.getElementById('tableHeadRow');
+            const tbody = document.getElementById('tableBody');
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            
+            thead.innerHTML = ''; tbody.innerHTML = '';
+
+            if(!rows || rows.length === 0){
+                tbody.innerHTML = '<tr><td colspan="10">No data found.</td></tr>';
+                return;
+            }
+
+            // 1. DETERMINE COLUMNS
+            let showCols = [];
+            let truncCol = "";
+            
+            if(TABLE_CONFIG[currentTable]){
+                showCols = TABLE_CONFIG[currentTable].columns;
+                truncCol = TABLE_CONFIG[currentTable].truncate;
+            } else {
+                showCols = Object.keys(rows[0]); // Default behavior for other tables
+            }
+
+            // 2. APPLY SORTING TO DATA ARRAY
+            const filteredAndSortedRows = rows.slice().sort((a, b) => {
+                let valA, valB;
+
+                if (sortColumn.toLowerCase().includes('reminder')) {
+                    valA = getLastReminderDate(a);
+                    valB = getLastReminderDate(b);
+                    
+                    // Priority sorting for dates (non-dates last)
+                    if (!valA && !valB) return 0;
+                    if (!valA) return sortDirection === 'asc' ? 1 : -1;
+                    if (!valB) return sortDirection === 'asc' ? -1 : 1;
+
+                    // Compare milliseconds
+                    const comparison = valA.getTime() - valB.getTime();
+                    return sortDirection === 'asc' ? comparison : -comparison;
+                } else {
+                    // Standard string comparison for other columns
+                    valA = String(a[sortColumn] || '').toLowerCase();
+                    valB = String(b[sortColumn] || '').toLowerCase();
+                    if (valA < valB) return sortDirection === 'asc' ? -1 : 1;
+                    if (valA > valB) return sortDirection === 'asc' ? 1 : -1;
+                    return 0;
+                }
+            });
+            
+            // 3. RENDER HEADERS (with sort controls)
+            showCols.forEach(col => {
+                let style = (col === truncCol) ? 'style="width:50%"' : ''; 
+                let sortIndicator = '';
+                
+                // Add sort indicator if this is the active sort column
+                if (sortColumn === col) {
+                    sortIndicator = `<span class="sort-indicator">${sortDirection === 'asc' ? '▲' : '▼'}</span>`;
+                }
+
+                // Add sorting click handler
+                thead.innerHTML += `<th ${style} onclick="sortTable('${col}')">${col}${sortIndicator}</th>`;
+            });
+            thead.innerHTML += `<th style="text-align:center; width:100px;">Action</th>`;
+
+
+            // 4. RENDER ROWS
+            filteredAndSortedRows.forEach((row, index) => {
+                // Filtering by search input
+                const rowStr = JSON.stringify(row).toLowerCase(); 
+                if(search && !rowStr.includes(search)) return;
+                
+                // Overdue Check
+                let trClass = '';
+                const lastReminderDateObj = getLastReminderDate(row);
+                
+                let statusVal = (row['Status'] || row['STATUS'] || '').toLowerCase();
+                
+                // Overdue Highlighting Logic (Only check if status is NOT done and there is a reminder date)
+                if (statusVal !== 'done' && lastReminderDateObj) {
+                    const diffTime = today.getTime() - lastReminderDateObj.getTime();
+                    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)); 
+                    
+                    if (diffDays > 10) {
+                        trClass = 'overdue-row';
+                    }
+                }
+				if (statusVal === 'done' && lastReminderDateObj) {
+                        trClass = 'success-row';
+                    }
+
+                let tr = `<tr class="${trClass}">`;
+                
+                showCols.forEach(col => {
+                    let val = row[col] || "";
+                    let content = val;
+                    const remColName = Object.keys(row).find(k => k.toLowerCase().includes('last reminder'));
+                    const lastDate = (remColName && Array.isArray(row[remColName]) && row[remColName].length > 0) 
+                        ? row[remColName][row[remColName].length-1].date : null;
+
+                    // A. Truncated Topic Logic
+                    if(col === truncCol){
+                        // Use the original row index, not the index in the filtered array
+                        const originalIndex = DB[currentTable].findIndex(r => JSON.stringify(r) === JSON.stringify(row));
+						if (statusVal === 'done' && lastReminderDateObj) {
+                        content = `<span class="">${val}</span>`;
+                    }else {content = `<span class="topic-truncate" title="Click to View Full Details" onclick="viewRowDetails(${originalIndex})">${val}</span>`;}
+                        
+                    }
+                    // B. Reminder Logic
+                    else if(col.toLowerCase().includes('last reminder')){
+                        const originalIndex = DB[currentTable].findIndex(r => JSON.stringify(r) === JSON.stringify(row));
+						if(statusVal === 'done'){
+							content='Done';
+						}
+						else{
+                        content = `<span class="reminder-link" onclick="openReminderModal(${originalIndex}, '${col}')">${lastDate || "Add"}</span>`;
+						}
+                    }
+                    // C. Status Logic
+                    else if(col.toLowerCase().includes('status') && statusVal === 'done'){
+                        content = `<span class="Status-done">${val}</span>`;
+                    }
+
+                    tr += `<td>${content}</td>`;
+                });
+
+                // D. Action Buttons (Eye, Edit, Delete)
+                let actions = `<div class="action-icons">`;
+                const originalIndex = DB[currentTable].findIndex(r => JSON.stringify(r) === JSON.stringify(row));
+
+                // Eye Icon (Visible to Everyone)
+                actions += `<button class="icon-btn" style="color:var(--primary);" title="View Details" onclick="viewRowDetails(${originalIndex})">👁️</button>`;
+                
+                if(isAdmin){
+                    actions += `<button class="icon-btn" style="color:blue;" title="Edit" onclick="openRowModal('edit', ${originalIndex})">✎</button>`;
+                    actions += `<button class="icon-btn" style="color:red;" title="Delete" onclick="deleteRow(${originalIndex})">🗑</button>`;
+                }
+                actions += `</div>`;
+
+                tr += `<td>${actions}</td></tr>`;
+                tbody.innerHTML += tr;
+            });
+        }
+
+        // --- NEW: VIEW DETAILS FUNCTION ---
+        function viewRowDetails(index){
+            const row = DB[currentTable][index];
+            const tbody = document.getElementById('viewDetailsBody');
+            tbody.innerHTML = '';
+
+            // Loop through ALL columns in the data, not just the visible ones
+            Object.keys(row).forEach(key => {
+                let val = row[key];
+                
+                // Format Reminder Array for display
+                if(key.toLowerCase().includes('last reminder') && Array.isArray(val)){
+                    if(val.length > 0) {
+                        let history = val.map(r => `<strong>${r.date} (${r.contactWith || 'N/A'})</strong>: ${r.comment}`).join('<br>');
+                        val = history;
+                    }
+                    else val = "No reminders";
+                }
+
+                tbody.innerHTML += `<tr><th>${key}</th><td>${val}</td></tr>`;
+            });
+
+            document.getElementById('viewModal').style.display = 'flex';
+        }
+
+        // --- EDIT/ADD LOGIC ---
+        function openRowModal(mode, index = -1){
+            if(!isAdmin) return;
+            const modal = document.getElementById('mainModal');
+            const form = document.getElementById('modalForm');
+            const saveBtn = document.getElementById('modalSaveBtn');
+            
+            modal.style.display = 'flex';
+            form.innerHTML = '';
+            document.getElementById('modalTitle').innerText = mode === 'add' ? 'Add Entry' : 'Edit Entry';
+            editIndex = index;
+
+            // Get all possible columns from the first row definition
+            const allColumns = Object.keys(DB[currentTable][0]);
+
+            allColumns.forEach(col => {
+                // Skip Last Reminder (handled separately)
+                if(col.toLowerCase().includes('last reminder')) return;
+
+                let val = mode === 'edit' ? DB[currentTable][index][col] : '';
+                
+                // Use TextArea for long fields
+                let isLong = (col.toLowerCase().includes('topic') || col.toLowerCase().includes('details') || col.toLowerCase().includes('comment'));
+                let inputHtml = isLong 
+                    ? `<textarea id="inp_${col}" rows="3">${val}</textarea>`
+                    : `<input type="text" id="inp_${col}" value="${val}">`;
+
+                form.innerHTML += `<div class="input-group"><label>${col}</label>${inputHtml}</div>`;
+            });
+
+            saveBtn.onclick = () => {
+                let newRow = mode === 'edit' ? DB[currentTable][editIndex] : JSON.parse(JSON.stringify(DB[currentTable][0]));
+                
+                allColumns.forEach(col => {
+                    if(!col.toLowerCase().includes('last reminder')){
+                        let el = document.getElementById(`inp_${col}`);
+                        if(el) newRow[col] = el.value;
+                    } else if(mode === 'add'){
+                        // Ensure it starts as an empty array for new rows
+                        newRow[col] = [];
+                    }
+                });
+
+                if(mode === 'add') DB[currentTable].push(newRow);
+                else DB[currentTable][editIndex] = newRow;
+
+                saveToLocal();
+                renderRows();
+                closeModal('mainModal');
+            };
+        }
+
+        function deleteRow(index){
+            if(confirm("Are you sure?")) { DB[currentTable].splice(index, 1); saveToLocal(); renderRows(); renderSidebar(); }
+        }
+
+        // --- REMINDERS ---
+        function openReminderModal(rowIndex, colName){
+            reminderRowIndex = rowIndex;
+            activeReminderCol = colName;
+            const container = document.getElementById('reminderListContainer');
+            container.innerHTML = '';
+
+            const arr = DB[currentTable][rowIndex][colName] || [];
+            
+            if(arr.length === 0) container.innerHTML = '<div style="color:#999; padding:10px;">No history.</div>';
+            else {
+                // Displaying in reverse chronological order
+                [...arr].reverse().forEach(r => {
+                    container.innerHTML += `
+                        <div style="border-bottom:1px solid #eee; padding:8px 0;">
+                            <div style="color:${getComputedStyle(document.documentElement).getPropertyValue('--primary')}; font-weight:bold;">${r.date} <small>(${r.contactWith})</small></div>
+                            <div style="color:#444;">${r.comment}</div>
+                        </div>`;
+                });
+            }
+
+            document.getElementById('remDate').value = new Date().toISOString().split('T')[0];
+            document.getElementById('contactWith').value = '';
+            document.getElementById('remComment').value = '';
+            document.getElementById('reminderModal').style.display = 'flex';
+        }
+
+        function addNewReminder(){
+            const d = document.getElementById('remDate').value;
+            const c = document.getElementById('remComment').value;
+            const w = document.getElementById('contactWith').value;
+            if(!d || !c) return alert("Date and Comment required");
+
+            if(!DB[currentTable][reminderRowIndex][activeReminderCol]) DB[currentTable][reminderRowIndex][activeReminderCol] = [];
+            DB[currentTable][reminderRowIndex][activeReminderCol].push({ date: d, comment: c, contactWith: w });
+            
+            saveToLocal();
+            openReminderModal(reminderRowIndex, activeReminderCol);
+            renderRows();
+        }
+
+        // --- UTILS ---
+        function closeModal(id){ document.getElementById(id).style.display = 'none'; }
+        function saveToLocal(){ if(isAdmin) localStorage.setItem('pubali_db', JSON.stringify(DB)); }
+        
+        function askAdminPass(){
+            if(isAdmin) return;
+            const pass = prompt("Enter Admin Password:");
+            // Using "118" as per your first code, or "123"
+            if(pass === "118" || pass === "123"){ 
+                localStorage.setItem('isPubaliAdmin', 'true'); 
+                location.reload(); 
+            }
+        }
+        
+        function resetData(){ if(confirm("Factory Reset?")) { localStorage.clear(); location.reload(); }}
+        function downloadJSFile() {
+            const blob = new Blob([`const STARTUP_DATA = ${JSON.stringify(DB, null, 2)};`], { type: "text/javascript" });
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = "data.js";
+            document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        }
+        function openAddTableModal(){ 
+            const n = prompt("Table Name:"); 
+            // New tables need a default row structure to determine columns
+            if(n && !DB[n]) { DB[n] = [{"SL No.":1, "Details":"", "Requested By":"", "Requested On":"", "Status":"", "Last Reminder":[]}]; saveToLocal(); loadTable(n); } 
+        }
+        function deleteCurrentTable(){ if(confirm("Delete Table?")) { delete DB[currentTable]; saveToLocal(); location.reload(); }}
+
+        init();
+    </script>
+</body>
+</html>
