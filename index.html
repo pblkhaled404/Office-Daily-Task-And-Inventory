@@ -261,6 +261,13 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
+        // ========== FIXED SUPABASE CONFIGURATION ==========
+        // আপনার Supabase credentials এখানে দিন - একবার দিলেই হবে
+        const SUPABASE_CONFIG = {
+            url: 'https://afooeyfvzfhlcxlufnyw.supabase.co',  // Example: 'https://xxxxx.supabase.co'
+            key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFmb29leWZ2emZobGN4bHVmbnl3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU3MDA1MjEsImV4cCI6MjA4MTI3NjUyMX0.L8IxAmBZ_q5rrWjUUFsDzYfE1-1ci4dyHZvAN86naEw'   // Example: 'eyJhbGc...'
+        };
+
         const TABLE_CONFIG = {
             "Pending Task SDD": {
                 columns: ["SL No.", "Topics", "Last Reminder", "Status"], 
@@ -296,21 +303,40 @@
         // ========== SUPABASE FUNCTIONS ==========
         
         async function initSupabase() {
-            const url = localStorage.getItem('supabase_url');
-            const key = localStorage.getItem('supabase_key');
-            
-            if (!url || !key) {
-                document.getElementById('configScreen').style.display = 'flex';
-                document.getElementById('loadingScreen').style.display = 'none';
-                return false;
+            // Check if config is set
+            if (!SUPABASE_CONFIG.url || !SUPABASE_CONFIG.key || 
+                SUPABASE_CONFIG.url === 'https://afooeyfvzfhlcxlufnyw.supabase.co' || 
+                SUPABASE_CONFIG.key === 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFmb29leWZ2emZobGN4bHVmbnl3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU3MDA1MjEsImV4cCI6MjA4MTI3NjUyMX0.L8IxAmBZ_q5rrWjUUFsDzYfE1-1ci4dyHZvAN86naEw') {
+                
+                // Fallback to modal if not configured in code
+                const url = localStorage.getItem('supabase_url');
+                const key = localStorage.getItem('supabase_key');
+                
+                if (!url || !key) {
+                    document.getElementById('configScreen').style.display = 'flex';
+                    document.getElementById('loadingScreen').style.display = 'none';
+                    return false;
+                }
+                
+                try {
+                    supabase = window.supabase.createClient(url, key);
+                    document.getElementById('configScreen').style.display = 'none';
+                    return true;
+                } catch (error) {
+                    alert('Supabase connection error: ' + error.message);
+                    return false;
+                }
             }
             
+            // Use fixed configuration from code
             try {
-                supabase = window.supabase.createClient(url, key);
+                supabase = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.key);
                 document.getElementById('configScreen').style.display = 'none';
                 return true;
             } catch (error) {
                 alert('Supabase connection error: ' + error.message);
+                document.getElementById('configScreen').style.display = 'flex';
+                document.getElementById('loadingScreen').style.display = 'none';
                 return false;
             }
         }
@@ -772,6 +798,7 @@
             if (!confirm("Reset Supabase configuration? You'll need to re-enter your credentials.")) return;
             localStorage.removeItem('supabase_url');
             localStorage.removeItem('supabase_key');
+            alert('Configuration cleared. Please update SUPABASE_CONFIG in the code or re-enter credentials.');
             location.reload();
         }
 
