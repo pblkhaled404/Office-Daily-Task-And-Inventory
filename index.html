@@ -16,46 +16,67 @@
             --done-text: #27ae60;
         }
 
+        * { box-sizing: border-box; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; background: var(--light-bg); display: flex; flex-direction: column; height: 100vh; color: var(--text); }
 
+        /* HEADER */
         header {
             background: white; border-bottom: 3px solid var(--primary); padding: 10px 20px;
             display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            flex-wrap: wrap; gap: 10px;
         }
-        .brand { display: flex; align-items: center; gap: 15px; }
-        .brand img { height: 50px; } 
-        .brand h1 { margin: 0; font-size: 20px; color: var(--primary); text-transform: uppercase; }
-        .brand small { color: #666; display: block; font-size: 12px; }
+        .brand { display: flex; align-items: center; gap: 10px; }
+        .brand img { height: 40px; } 
+        .brand h1 { margin: 0; font-size: 18px; color: var(--primary); text-transform: uppercase; }
+        .brand small { color: #666; display: block; font-size: 11px; }
+        .top-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 
+        /* MOBILE TOGGLE */
+        .menu-toggle { display: none; background: var(--primary); color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 18px; }
+
+        /* LAYOUT */
         .container { flex: 1; display: flex; overflow: hidden; }
         
-        aside { width: 260px; background: #004d38; color: white; display: flex; flex-direction: column; border-right: 1px solid #003829; }
+        /* SIDEBAR */
+        aside { 
+            width: 260px; background: #004d38; color: white; display: flex; flex-direction: column; 
+            border-right: 1px solid #003829; transition: transform 0.3s ease;
+        }
         .sb-header { padding: 15px; background: rgba(0,0,0,0.2); text-align: center; }
         .sb-header h3 { margin: 0; font-size: 16px; color: var(--accent); }
         .table-list { list-style: none; padding: 0; margin: 0; overflow-y: auto; flex: 1; }
-        .table-list li { padding: 12px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); cursor: pointer; transition: 0.2s; display: flex; justify-content: space-between; }
+        .table-list li { 
+            padding: 12px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); cursor: pointer; 
+            transition: 0.2s; display: flex; justify-content: space-between; align-items: center;
+        }
         .table-list li:hover { background: rgba(255,255,255,0.1); }
         .table-list li.active { background: var(--light-bg); color: var(--primary); border-left: 5px solid var(--accent); font-weight: bold; }
         
         .add-table-btn { width: 90%; margin: 10px auto; padding: 8px; background: var(--accent); border: none; color: #000; font-weight: bold; cursor: pointer; border-radius: 4px; display: block; }
 
-        main { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; }
-        .toolbar { display: flex; gap: 10px; margin-bottom: 15px; background: white; padding: 10px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .search-box { flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        /* MAIN AREA */
+        main { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; }
+        .toolbar { 
+            display: flex; gap: 8px; margin-bottom: 15px; background: white; padding: 10px; 
+            border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); flex-wrap: wrap; align-items: center;
+        }
+        .toolbar h3 { margin: 0; color: var(--primary); font-size: 16px; }
+        .search-box { flex: 1; min-width: 200px; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
         
+        /* DATA TABLE */
         .table-wrapper { flex: 1; overflow: auto; border: 1px solid var(--border); border-radius: 6px; background: white; }
-        table { width: 100%; border-collapse: collapse; }
+        table { width: 100%; border-collapse: collapse; min-width: 600px; }
         th { 
-            background: var(--primary); color: white; padding: 12px; text-align: left; position: sticky; top: 0; z-index: 10; 
-            white-space: nowrap; cursor: pointer;
+            background: var(--primary); color: white; padding: 10px 8px; text-align: left; position: sticky; top: 0; z-index: 10; 
+            white-space: nowrap; cursor: pointer; font-size: 13px;
         }
         th:last-child { cursor: default; }
-        td { padding: 8px 12px; border-bottom: 1px solid #eee; vertical-align: middle; }
+        td { padding: 8px; border-bottom: 1px solid #eee; vertical-align: middle; font-size: 13px; }
         tr:hover { background-color: #f1f8f6; }
         .sort-indicator { margin-left: 5px; font-size: 0.8em; }
 
         .topic-truncate {
-            display: block; max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            display: block; max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
             cursor: pointer; color: var(--primary); font-weight: 500;
         }
         .topic-truncate:hover { text-decoration: underline; color: #003829; }
@@ -64,41 +85,119 @@
         .overdue-row { background-color: var(--overdue-bg) !important; color: #880000; }
         .reminder-link { color: #d35400; font-weight: bold; cursor: pointer; text-decoration: underline; }
 
-        .btn { padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; }
+        /* BUTTONS */
+        .btn { 
+            padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; 
+            font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; 
+            gap: 5px; white-space: nowrap;
+        }
         .btn-primary { background: var(--primary); color: white; }
         .btn-accent { background: var(--accent); color: #000; }
         .btn-danger { background: #e74c3c; color: white; }
         .btn-outline { background: transparent; border: 1px solid var(--primary); color: var(--primary); }
 
-        .action-icons { display: flex; gap: 10px; align-items: center; }
+        /* ACTION ICONS */
+        .action-icons { display: flex; gap: 8px; align-items: center; justify-content: center; }
         .icon-btn { border: none; background: none; cursor: pointer; font-size: 16px; padding: 2px; transition: transform 0.2s; }
         .icon-btn:hover { transform: scale(1.2); }
 
-        footer { background: var(--primary); color: white; text-align: center; padding: 5px 10px; font-size: 12px; border-top: 3px solid var(--accent); display: flex; justify-content: space-between; align-items: center; }
-        .footer-logo { height: 20px; vertical-align: middle; margin-right: 5px; filter: brightness(0) invert(1); }
+        /* FOOTER */
+        footer { 
+            background: var(--primary); color: white; text-align: center; padding: 8px 10px; 
+            font-size: 11px; border-top: 3px solid var(--accent); display: flex; 
+            justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
+        }
+        .footer-logo { height: 18px; vertical-align: middle; margin-right: 5px; filter: brightness(0) invert(1); }
 
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(2px); }
-        .modal-box { background: white; width: 500px; max-width: 90%; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); overflow: hidden; display: flex; flex-direction: column; max-height: 85vh; }
-        .modal-header { background: var(--primary); color: white; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; }
-        .modal-body { padding: 20px; overflow-y: auto; }
-        .modal-footer { padding: 15px; background: #f9f9f9; text-align: right; border-top: 1px solid #eee; }
+        /* MODALS */
+        .modal-overlay { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); 
+            display: none; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(2px);
+            padding: 10px;
+        }
+        .modal-box { 
+            background: white; width: 500px; max-width: 95%; border-radius: 8px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2); overflow: hidden; display: flex; 
+            flex-direction: column; max-height: 90vh;
+        }
+        .modal-header { 
+            background: var(--primary); color: white; padding: 12px 15px; 
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .modal-header h3 { margin: 0; font-size: 16px; }
+        .modal-body { padding: 15px; overflow-y: auto; }
+        .modal-footer { padding: 12px 15px; background: #f9f9f9; text-align: right; border-top: 1px solid #eee; }
 
         .detail-table { width: 100%; border-collapse: collapse; }
-        .detail-table th { background: #eee; color: #333; padding: 10px; border: 1px solid #ddd; width: 30%; text-align: left; }
-        .detail-table td { padding: 10px; border: 1px solid #ddd; word-break: break-word; white-space: pre-wrap; }
+        .detail-table th { background: #eee; color: #333; padding: 8px; border: 1px solid #ddd; width: 35%; text-align: left; font-size: 12px; }
+        .detail-table td { padding: 8px; border: 1px solid #ddd; word-break: break-word; white-space: pre-wrap; font-size: 12px; }
         
         .input-group { margin-bottom: 12px; }
         .input-group label { display: block; font-size: 12px; color: #666; margin-bottom: 4px; font-weight: bold; }
-        .input-group input, .input-group textarea { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        .input-group input, .input-group textarea { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 13px; }
         
         .admin-only { display: none !important; }
         
-        .loading { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 9999; }
-        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 10px; }
+        .loading { 
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+            background: white; padding: 30px; border-radius: 8px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 9999;
+        }
+        .spinner { 
+            border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); 
+            border-radius: 50%; width: 40px; height: 40px; 
+            animation: spin 1s linear infinite; margin: 0 auto 10px;
+        }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        .config-modal { background: #fffbf0; padding: 15px; border-radius: 6px; border: 2px solid var(--accent); margin-bottom: 20px; }
-        .config-modal input { margin: 5px 0; }
+        .config-modal { background: #fffbf0; padding: 15px; border-radius: 6px; border: 2px solid var(--accent); margin-bottom: 15px; }
+
+        /* MOBILE RESPONSIVE */
+        @media (max-width: 768px) {
+            .brand h1 { font-size: 14px; }
+            .brand small { font-size: 10px; }
+            .brand img { height: 35px; }
+            
+            .menu-toggle { display: block; }
+            
+            aside {
+                position: fixed; left: 0; top: 0; bottom: 0; z-index: 999;
+                transform: translateX(-100%);
+            }
+            aside.active { transform: translateX(0); box-shadow: 2px 0 10px rgba(0,0,0,0.3); }
+            
+            main { padding: 10px; }
+            
+            .toolbar { padding: 8px; }
+            .toolbar h3 { font-size: 14px; width: 100%; }
+            .search-box { min-width: 100%; }
+            
+            .btn { padding: 6px 10px; font-size: 11px; }
+            
+            th, td { padding: 6px 4px; font-size: 11px; }
+            .topic-truncate { max-width: 150px; }
+            
+            .action-icons { gap: 5px; }
+            .icon-btn { font-size: 14px; }
+            
+            footer { font-size: 9px; padding: 5px; }
+            footer > div { font-size: 9px; }
+            .footer-logo { height: 15px; }
+            
+            .modal-box { max-width: 98%; }
+            .modal-body { padding: 10px; }
+            
+            table { min-width: 500px; }
+        }
+
+        @media (max-width: 480px) {
+            .top-actions { width: 100%; justify-content: space-between; }
+            .btn { flex: 1; justify-content: center; }
+            
+            .table-list li { padding: 10px 15px; font-size: 13px; }
+            
+            th, td { font-size: 10px; padding: 5px 3px; }
+        }
     </style>
 </head>
 <body>
@@ -108,15 +207,16 @@
         <div style="text-align:center; color:var(--primary); font-weight:bold;">Loading Data...</div>
     </div>
 
-    <div id="configScreen" class="modal-overlay" style="display:flex;">
+    <!-- Admin Only Config Modal -->
+    <div id="configScreen" class="modal-overlay admin-only">
         <div class="modal-box">
             <div class="modal-header">
-                <h3>🔧 Supabase Configuration</h3>
+                <h3>🔧 Supabase Configuration (Admin Only)</h3>
             </div>
             <div class="modal-body">
                 <div class="config-modal">
-                    <h4 style="margin-top:0; color:var(--primary);">প্রথমবার Setup করুন</h4>
-                    <p style="font-size:13px; color:#666;">Supabase থেকে আপনার Project URL এবং API Key দিন:</p>
+                    <h4 style="margin-top:0; color:var(--primary);">Update Configuration</h4>
+                    <p style="font-size:12px; color:#666;">Current config is working. Only change if needed:</p>
                     
                     <div class="input-group">
                         <label>Supabase Project URL</label>
@@ -128,29 +228,15 @@
                         <input type="text" id="supabaseKey" placeholder="eyJhbGc...">
                     </div>
                     
-                    <button class="btn btn-primary" style="width:100%; margin-top:10px;" onclick="saveSupabaseConfig()">✓ Save & Initialize</button>
+                    <button class="btn btn-primary" style="width:100%; margin-top:10px;" onclick="saveSupabaseConfig()">✓ Save Configuration</button>
+                    <button class="btn btn-outline" style="width:100%; margin-top:5px;" onclick="closeModal('configScreen')">Cancel</button>
                 </div>
-                
-                <details style="margin-top:15px; font-size:13px;">
-                    <summary style="cursor:pointer; color:var(--primary); font-weight:bold;">📖 Setup Guide</summary>
-                    <ol style="margin-top:10px; padding-left:20px;">
-                        <li>Supabase.com এ যান এবং Sign Up করুন</li>
-                        <li>New Project তৈরি করুন</li>
-                        <li>SQL Editor এ যান এবং নিচের SQL কোড রান করুন:</li>
-                    </ol>
-                    <pre style="background:#f5f5f5; padding:10px; border-radius:4px; overflow:auto; font-size:11px;">CREATE TABLE pubali_tables (
-  id SERIAL PRIMARY KEY,
-  table_name TEXT UNIQUE NOT NULL,
-  data JSONB NOT NULL,
-  updated_at TIMESTAMPTZ DEFAULT NOW()
-);</pre>
-                    <p>4. Settings → API থেকে URL এবং anon key কপি করুন</p>
-                </details>
             </div>
         </div>
     </div>
 
     <header>
+        <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
         <div class="brand">
             <img src="banklogo.gif" alt="Pubali Bank Logo" onerror="this.style.display='none'">
             <div>
@@ -159,13 +245,13 @@
             </div>
         </div>
         <div class="top-actions admin-only"> 
-            <button class="btn btn-outline" onclick="exportData()">⬇ Export Data</button>
-            <button class="btn btn-danger" onclick="resetConfig()">⚙ Reset Config</button>
+            <button class="btn btn-outline" onclick="exportData()">⬇ Backup</button>
+            <button class="btn btn-danger" onclick="openConfigModal()">⚙ Config</button>
         </div>
     </header>
 
     <div class="container">
-        <aside>
+        <aside id="sidebar">
             <div class="sb-header">
                 <h3>TABLE LIST</h3>
             </div>
@@ -175,12 +261,12 @@
 
         <main>
             <div id="welcomeScreen" style="text-align: center; margin-top: 50px; color: #aaa;">
-                <h2>Select a table to view details</h2>
+                <h2 style="font-size: 18px;">Select a table to view details</h2>
             </div>
 
             <div id="tableContent" style="display: none; height: 100%; flex-direction: column;">
                 <div class="toolbar">
-                    <h3 id="activeTableName" style="margin: 0; margin-right: 15px; color: var(--primary);">Table Name</h3>
+                    <h3 id="activeTableName">Table Name</h3>
                     <input type="text" id="searchInput" class="search-box" placeholder="Search data..." onkeyup="renderRows()">
                     <button class="btn btn-primary admin-only" onclick="openRowModal('add')">+ Add Row</button>
                     <button class="btn btn-danger admin-only" onclick="deleteCurrentTable()">Delete Table</button>
@@ -197,9 +283,9 @@
     </div>
 
     <footer>
-        <div onclick="askAdminPass()" style="cursor: pointer;" title="Double click to Login as Admin">
+        <div onclick="askAdminPass()" style="cursor: pointer;" title="Click to Login as Admin">
             <img src="banklogo.gif" class="footer-logo" alt="Logo" onerror="this.style.display='none'">
-            <span>Developed by Switching CMS & Risk Management Unit <br>Card Operation Division (COD)</span>
+            <span>Developed by Switching CMS & Risk Management</span>
         </div>
         <div>
             Status: <span id="StatusIndicator" style="color: #81ecec;">View Mode</span>
@@ -247,8 +333,8 @@
                 <button style="background:none; border:none; color:white; font-size:20px; cursor:pointer;" onclick="closeModal('reminderModal')">×</button>
             </div>
             <div class="modal-body">
-                <div class="admin-only" style="background: #effbf5; padding: 15px; border-radius: 6px; border: 1px solid #c8d6d1; margin-bottom: 15px;">
-                    <div style="font-weight:bold; margin-bottom:5px; color:var(--primary);">Add New Reminder</div>
+                <div class="admin-only" style="background: #effbf5; padding: 12px; border-radius: 6px; border: 1px solid #c8d6d1; margin-bottom: 12px;">
+                    <div style="font-weight:bold; margin-bottom:5px; color:var(--primary); font-size:13px;">Add New Reminder</div>
                     <div class="input-group"><label>Date</label><input type="date" id="remDate"></div>
                     <div class="input-group"><label>Contact With</label><input type="text" id="contactWith"></div>
                     <div class="input-group"><label>Update Comment</label><textarea id="remComment" rows="2"></textarea></div>
@@ -262,10 +348,9 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         // ========== FIXED SUPABASE CONFIGURATION ==========
-        // আপনার Supabase credentials এখানে দিন - একবার দিলেই হবে
         const SUPABASE_CONFIG = {
-            url: 'https://afooeyfvzfhlcxlufnyw.supabase.co',  // Example: 'https://xxxxx.supabase.co'
-            key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFmb29leWZ2emZobGN4bHVmbnl3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU3MDA1MjEsImV4cCI6MjA4MTI3NjUyMX0.L8IxAmBZ_q5rrWjUUFsDzYfE1-1ci4dyHZvAN86naEw'   // Example: 'eyJhbGc...'
+            url: 'https://afooeyfvzfhlcxlufnyw.supabase.co',
+            key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFmb29leWZ2emZobGN4bHVmbnl3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU3MDA1MjEsImV4cCI6MjA4MTI3NjUyMX0.L8IxAmBZ_q5rrWjUUFsDzYfE1-1ci4dyHZvAN86naEw'
         };
 
         const TABLE_CONFIG = {
@@ -300,48 +385,42 @@
         let sortDirection = 'desc';
         const today = new Date();
 
+        // ========== MOBILE SIDEBAR TOGGLE ==========
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+        }
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', (e) => {
+            const sidebar = document.getElementById('sidebar');
+            const toggle = document.querySelector('.menu-toggle');
+            if (window.innerWidth <= 768 && sidebar.classList.contains('active') && 
+                !sidebar.contains(e.target) && !toggle.contains(e.target)) {
+                sidebar.classList.remove('active');
+            }
+        });
+
         // ========== SUPABASE FUNCTIONS ==========
         
         async function initSupabase() {
-            // Check if config is set
-            if (!SUPABASE_CONFIG.url || !SUPABASE_CONFIG.key || 
-                SUPABASE_CONFIG.url === 'https://afooeyfvzfhlcxlufnyw.supabase.co' || 
-                SUPABASE_CONFIG.key === 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFmb29leWZ2emZobGN4bHVmbnl3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU3MDA1MjEsImV4cCI6MjA4MTI3NjUyMX0.L8IxAmBZ_q5rrWjUUFsDzYfE1-1ci4dyHZvAN86naEw') {
-                
-                // Fallback to modal if not configured in code
-                const url = localStorage.getItem('supabase_url');
-                const key = localStorage.getItem('supabase_key');
-                
-                if (!url || !key) {
-                    document.getElementById('configScreen').style.display = 'flex';
-                    document.getElementById('loadingScreen').style.display = 'none';
-                    return false;
-                }
-                
-                try {
-                    supabase = window.supabase.createClient(url, key);
-                    document.getElementById('configScreen').style.display = 'none';
-                    return true;
-                } catch (error) {
-                    alert('Supabase connection error: ' + error.message);
-                    return false;
-                }
-            }
-            
-            // Use fixed configuration from code
             try {
                 supabase = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.key);
-                document.getElementById('configScreen').style.display = 'none';
                 return true;
             } catch (error) {
-                alert('Supabase connection error: ' + error.message);
-                document.getElementById('configScreen').style.display = 'flex';
-                document.getElementById('loadingScreen').style.display = 'none';
+                console.error('Supabase connection error:', error);
+                alert('Database connection failed. Please check configuration.');
                 return false;
             }
         }
 
-        async function saveSupabaseConfig() {
+        function openConfigModal() {
+            if (!isAdmin) return;
+            document.getElementById('supabaseUrl').value = SUPABASE_CONFIG.url;
+            document.getElementById('supabaseKey').value = SUPABASE_CONFIG.key;
+            document.getElementById('configScreen').style.display = 'flex';
+        }
+
+        function saveSupabaseConfig() {
             const url = document.getElementById('supabaseUrl').value.trim();
             const key = document.getElementById('supabaseKey').value.trim();
             
@@ -350,10 +429,8 @@
                 return;
             }
             
-            localStorage.setItem('supabase_url', url);
-            localStorage.setItem('supabase_key', key);
-            
-            location.reload();
+            alert('Configuration saved! Please update the SUPABASE_CONFIG in your code and redeploy.');
+            closeModal('configScreen');
         }
 
         async function loadAllTablesFromDB() {
@@ -365,7 +442,6 @@
                 if (error) throw error;
                 
                 if (!data || data.length === 0) {
-                    // First time setup - load startup data
                     await initializeStartupData();
                     return;
                 }
@@ -439,7 +515,10 @@
 
         async function init() {
             const connected = await initSupabase();
-            if (!connected) return;
+            if (!connected) {
+                document.getElementById('loadingScreen').style.display = 'none';
+                return;
+            }
             
             await loadAllTablesFromDB();
             applyAdminUI();
@@ -467,7 +546,12 @@
                 const li = document.createElement('li');
                 li.innerHTML = `<span>${key}</span> <small>(${DB[key].length})</small>`;
                 if (key === currentTable) li.classList.add('active');
-                li.onclick = () => loadTable(key);
+                li.onclick = () => {
+                    loadTable(key);
+                    if (window.innerWidth <= 768) {
+                        document.getElementById('sidebar').classList.remove('active');
+                    }
+                };
                 list.appendChild(li);
             });
         }
@@ -706,8 +790,8 @@
                 [...arr].reverse().forEach(r => {
                     container.innerHTML += `
                         <div style="border-bottom:1px solid #eee; padding:8px 0;">
-                            <div style="color:var(--primary); font-weight:bold;">${r.date} <small>(${r.contactWith})</small></div>
-                            <div style="color:#444;">${r.comment}</div>
+                            <div style="color:var(--primary); font-weight:bold; font-size:12px;">${r.date} <small>(${r.contactWith})</small></div>
+                            <div style="color:#444; font-size:12px;">${r.comment}</div>
                         </div>`;
                 });
             }
@@ -792,14 +876,6 @@
                 localStorage.setItem('isPubaliAdmin', 'true');
                 location.reload();
             }
-        }
-
-        function resetConfig() {
-            if (!confirm("Reset Supabase configuration? You'll need to re-enter your credentials.")) return;
-            localStorage.removeItem('supabase_url');
-            localStorage.removeItem('supabase_key');
-            alert('Configuration cleared. Please update SUPABASE_CONFIG in the code or re-enter credentials.');
-            location.reload();
         }
 
         async function exportData() {
