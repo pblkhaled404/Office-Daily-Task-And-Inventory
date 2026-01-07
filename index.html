@@ -667,7 +667,7 @@
                         content = `<span class="topic-truncate" title="Click to View Full Details" onclick="viewRowDetails(${originalIndex})">${val}</span>`;
                     } else if (col.toLowerCase().includes('last reminder')) {
                         content = `<span class="reminder-link" onclick="openReminderModal(${originalIndex}, '${col}')">${lastDate || "Add"}</span>`;
-                    } else if (col.toLowerCase().includes('status') && statusVal === 'done') {
+                    } else if (col.toLowerCase().includes('status') && statusVal === 'done' || statusVal === 'Done') {
                         content = `<span class="Status-done">${val}</span>`;
                     }
 
